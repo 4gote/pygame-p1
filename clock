@@ -1,0 +1,48 @@
+import pygame
+import sys
+from datetime import datetime
+
+pygame.init()
+
+WIDTH, HEIGHT = 800, 600
+CENTER = (WIDTH // 2, HEIGHT // 2)
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Mickey Clock")
+clock = pygame.time.Clock()
+
+background = pygame.image.load("mickeyclock.jpeg")
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+
+minute_hand = pygame.image.load("rhand.png") 
+second_hand = pygame.image.load("lhand.png")
+hour_hand = pygame.image.load("firsthand.png")  
+
+minute_hand = pygame.transform.scale(minute_hand, (50, 200))
+second_hand = pygame.transform.scale(second_hand, (40, 220))
+hour_hand = pygame.transform.scale(hour_hand, (60, 150))
+
+running = True
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    now = datetime.now()
+    
+    second_angle = -now.second * 6
+    minute_angle = -(now.minute * 6 + now.second * 0.1)
+    hour_angle = -((now.hour % 12) * 30 + now.minute * 0.5)
+    
+    screen.blit(background, (0, 0))
+    
+    for angle, hand in [(hour_angle, hour_hand), (minute_angle, minute_hand), (second_angle, second_hand)]:
+        rotated = pygame.transform.rotate(hand, angle)
+        rect = rotated.get_rect(center=CENTER)
+        screen.blit(rotated, rect)
+    
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
+sys.exit()
