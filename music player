@@ -1,0 +1,66 @@
+import pygame
+
+pygame.init()
+pygame.mixer.init()
+
+screen = pygame.display.set_mode((600, 400))
+pygame.display.set_caption("Music Player")
+
+tracks = ["1.mp3", "2.mp3", "3.mp3"]
+current_track = 0
+paused = False
+
+font = pygame.font.Font(None, 36)
+
+def play_track(index):
+    pygame.mixer.music.load(tracks[index])
+    pygame.mixer.music.play()
+
+def volume(direction):
+    v = min(1.0, max(0.0, pygame.mixer.music.get_volume() + direction))
+    pygame.mixer.music.set_volume(v)
+
+play_track(current_track)
+running = True
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE: 
+                if paused:
+                    pygame.mixer.music.unpause()
+                else:
+                    pygame.mixer.music.pause()
+                paused = not paused
+            elif event.key == pygame.K_RIGHT:
+                current_track = (current_track + 1) % len(tracks)
+                play_track(current_track)
+                paused = False
+            elif event.key == pygame.K_LEFT:  
+                current_track = (current_track - 1) % len(tracks)
+                play_track(current_track)
+                paused = False
+            elif event.key == pygame.K_s: 
+                pygame.mixer.music.stop()
+                paused = False
+            elif event.key == pygame.K_UP: 
+                volume(0.05)
+            elif event.key == pygame.K_DOWN: 
+                volume(-0.05)
+
+    screen.fill((0, 0, 0))
+    name = tracks[current_track].replace(".mp3", "").replace(".wav", "")
+    text = font.render(f"Now: {name}", True, (255, 255, 255))
+    screen.blit(text, (20, 150))
+    
+    vol_text = font.render(f"Volume: {int(pygame.mixer.music.get_volume() * 100)}%", True, (200, 200, 200))
+    screen.blit(vol_text, (20, 200))
+    
+    status = " Paused" if paused else " Playing"
+    screen.blit(font.render(status, True, (100, 255, 100)), (20, 250))
+    
+    pygame.display.flip()
+
+pygame.quit()
